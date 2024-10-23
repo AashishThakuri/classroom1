@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Data Science Classroom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4285F4;
+            --secondary-color: #34A853;
+            --accent-color: #FBBC05;
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --card-background: #f9f9f9;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+        }
+        nav ul li {
+            margin-right: 1rem;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-5px);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: var(--background-color);
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #000;
+        }
+        .dark-mode {
+            --background-color: #333;
+            --text-color: #fff;
+            --card-background: #444;
+        }
+        #searchInput {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #searchButton {
+            padding: 10px 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .resource-category {
+            margin-bottom: 2rem;
+        }
+        .resource-category h3 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+        .resource-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .login-container {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 2rem auto;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-container::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-repeat: no-repeat;
+            background-size: 50% 50%, 50% 50%;
+            background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+            background-image: 
+                linear-gradient(var(--primary-color), var(--primary-color)),
+                linear-gradient(var(--secondary-color), var(--secondary-color)),
+                linear-gradient(var(--accent-color), var(--accent-color)),
+                linear-gradient(var(--primary-color), var(--primary-color));
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+        @keyframes rotate {
+            100% {
+                transform: rotate(1turn);
+            }
+        }
+        .login-form input, .login-form button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 4px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .login-form input:focus, .login-form button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .login-form button {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .login-form button:hover {
+            background-color: #E2A100;
+        }
+        .profile-container {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 2rem auto;
+            text-align: center;
+            color: white;
+        }
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            background-color: var(--accent-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            color: var(--text-color);
+        }
+        .semester-projects {
+            margin-top: 2rem;
+        }
+        .semester-projects h3 {
+            color: var(--primary-color);
+        }
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background-color: var(--card-background);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chatbot-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chatbot-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .chatbot-input {
+            display: flex;
+            padding: 10px;
+        }
+        .chatbot-input input {
+            flex-grow: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .chatbot-input button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        @media (max-width: 600px) {
+            nav ul {
+                flex-direction: column;
+            }
+            nav ul li {
+                margin-bottom: 0.5rem;
+            }
+            .resource-list {
+                grid-template-columns: 1fr;
+            }
+            .chatbot-container {
+                width: 100%;
+                height: 50vh;
+                bottom: 0;
+                right: 0;
+                border-radius: 10px 10px 0 0;
+            }
+        }
+        .auth-container {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 2rem auto;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .auth-form input, .auth-form select, .auth-form button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 4px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .auth-form input:focus, .auth-form select:focus, .auth-form button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .auth-form button {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .auth-toggle {
+            margin-top: 1rem;
+            color: white;
+            cursor: pointer;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .auth-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @media (max-width: 600px) {
+            .auth-container {
+                width: 90%;
+                margin: 1rem auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Advanced Data Science Classroom</h1>
+        <nav>
+            <ul>
+                <li><a href="#" data-route="home">Home</a></li>
+                <li><a href="#" data-route="classes">Classes</a></li>
+                <li><a href="#" data-route="resources">Resources</a></li>
+                <li><a href="#" data-route="projects">Projects</a></li>
+                <li><a href="#" data-route="profile">Profile</a></li>
+            </ul>
+        </nav>
+        <button id="darkModeToggle">Toggle Dark Mode</button>
+    </header>
+
+    <main id="mainContent">
+       
+    </main>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <span>AI Assistant</span>
+            <button id="closeChatbot">X</button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages"></div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbotInput" placeholder="Ask a question...">
+            <button id="sendChatbotMessage">Send</button>
+        </div>
+    </div>
+
+    <script>
+        class Router {
+            constructor() {
+                this.routes = {
+                    home: () => this.showHome(),
+                    classes: () => this.showClasses(),
+                    resources: () => this.showResources(),
+                    projects: () => this.showProjects(),
+                    profile: () => this.showProfile(),
+                    class: (id) => this.showClass(id)
+                };
+                this.classes = [
+                    { 
+                        id: 1, 
+                        name: 'Introduction to Data Science', 
+                        teacher: 'Dr. Smith',
+                        materials: [
+                            { title: 'Introduction to Python for Data Science', url: 'https://datacamp.com/courses/intro-to-python-for-data-science' },
+                            { title: 'Data Science Math Skills', url: 'https://www.coursera.org/learn/datasciencemathskills' }
+                        ],
+                        notices: [
+                            { date: '2023-05-15', content: 'Quiz on basic Python concepts next week' },
+                            { date: '2023-05-20', content: 'Guest lecture on Data Ethics on Friday' }
+                        ]
+                    },
+                    { 
+                        id: 2, 
+                        name: 'Linear Algebra for Data Science', 
+                        teacher: 'Prof. Johnson',
+                        materials: [
+                            { title: 'Linear Algebra and Its Applications', url: 'http://math.mit.edu/~gs/linearalgebra/' },
+                            { title: '3Blue1Brown Linear Algebra Series', url: 'https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab' }
+                        ],
+                        notices: [
+                            { date: '2023-05-18', content: 'Assignment on matrix operations due next Monday' },
+                            { date: '2023-05-25', content: 'Study group for eigenvectors and eigenvalues on Thursday' }
+                        ]
+                    },
+                    { 
+                        id: 3, 
+                        name: 'Machine Learning Fundamentals', 
+                        teacher: 'Dr. Lee',
+                        materials: [
+                            { title: 'Machine Learning Course by Andrew Ng', url: 'https://www.coursera.org/learn/machine-learning' },
+                            { title: 'Hands-On Machine Learning with Scikit-Learn', url: 'https://github.com/ageron/handson-ml2' }
+                        ],
+                        notices: [
+                            { date: '2023-05-22', content: 'Project proposals for ML application due next week' },
+                            { date: '2023-05-30', content: 'Workshop on TensorFlow basics on Wednesday' }
+                            ]
+    },
+    { 
+        id: 4, 
+        name: 'Big Data Analytics', 
+        teacher: 'Prof. Garcia',
+        materials: [
+            { title: 'Big Data Specialization', url: 'https://www.coursera.org/specializations/big-data' },
+            { title: 'Apache Spark Tutorial', url: 'https://spark.apache.org/docs/latest/quick-start.html' }
+        ],
+        notices: [
+            { date: '2023-05-19', content: 'Hadoop cluster setup demonstration on Friday' },
+            { date: '2023-05-28', content: 'Guest speaker from Google Cloud Platform next Tuesday' }
+        ]
+    },
+    { 
+        id: 5, 
+        name: 'Statistical Methods for Data Science', 
+        teacher: 'Dr. Chen',
+        materials: [
+            { title: 'Statistics and Probability in Data Science using Python', url: 'https://www.edx.org/course/statistics-and-probability-in-data-science-using-python' },
+            { title: 'Statistical Inference Course', url: 'https://www.coursera.org/learn/statistical-inference' }
+        ],
+        notices: [
+            { date: '2023-05-21', content: 'Review session for hypothesis testing on Monday' },
+            { date: '2023-05-29', content: 'Group presentation on Bayesian methods next week' }
+        ]
+    }
+];
+}
+
+init() {
+    this.handleRoute();
+    window.addEventListener('hashchange', () => this.handleRoute());
+}
+
+handleRoute() {
+    const hash = window.location.hash.slice(1);
+    const [route, param] = hash.split('/');
+    const page = this.routes[route];
+    if (page) {
+        if (param) {
+            page(param);
+        } else {
+            page();
+        }
+    } else {
+        this.showHome();
+    }
+}
+
+showHome() {
+    document.getElementById('mainContent').innerHTML = `
+        <h2>Welcome to Advanced Data Science Classroom</h2>
+        <p>Explore our comprehensive resources and classes for your Bachelor's degree in Data Science.</p>
+    `;
+}
+
+showClasses() {
+    const classesHtml = this.classes.map(cls => `
+        <div class="card">
+            <h3>${cls.name}</h3>
+            <p>Teacher: ${cls.teacher}</p>
+            <a href="#class/${cls.id}">View Class</a>
+        </div>
+    `).join('');
+    document.getElementById('mainContent').innerHTML = `
+        <h2>Your Classes</h2>
+        ${classesHtml}
+    `;
+}
+
+showClass(id) {
+    const cls = this.classes.find(c => c.id === parseInt(id));
+    if (cls) {
+        const materialsHtml = cls.materials.map(m => `
+            <li><a href="${m.url}" target="_blank">${m.title}</a></li>
+        `).join('');
+        const noticesHtml = cls.notices.map(n => `
+            <li><strong>${n.date}:</strong> ${n.content}</li>
+        `).join('');
+        document.getElementById('mainContent').innerHTML = `
+            <h2>${cls.name}</h2>
+            <p>Teacher: ${cls.teacher}</p>
+            <h3>Materials</h3>
+            <ul>${materialsHtml}</ul>
+            <h3>Notices</h3>
+            <ul>${noticesHtml}</ul>
+            <a href="#classes">Back to Classes</a>
+        `;
+    } else {
+        this.showClasses();
+    }
+}
+
+showResources() {
+    document.getElementById('mainContent').innerHTML = `
+        <h2>Learning Resources</h2>
+        <input type="text" id="searchInput" placeholder="Search for resources">
+        <button id="searchButton">Search</button>
+        <div id="resourceContainer"></div>
+    `;
+    this.loadResources();
+    document.getElementById('searchButton').addEventListener('click', () => this.searchResources());
+}
+
+showProjects() {
+    document.getElementById('mainContent').innerHTML = `
+        <h2>Semester Projects</h2>
+        <div id="projectContainer"></div>
+    `;
+    this.loadProjects();
+}
+
+showProfile() {
+    if (app.isLoggedIn) {
+        document.getElementById('mainContent').innerHTML = `
+            <div class="profile-container">
+                <div class="profile-picture">${app.username[0].toUpperCase()}</div>
+                <h2>${app.username}</h2>
+                <p>${app.emailOrPhone}</p>
+                <button id="logoutButton">Logout</button>
+            </div>
+        `;
+        document.getElementById('logoutButton').addEventListener('click', () => app.logout());
+    } else {
+        this.showAuth();
+    }
+}
+
+showAuth(isLogin = false) {
+        const authHtml = `
+            <div class="auth-container">
+                <h2>${isLogin ? 'Login' : 'Sign Up'}</h2>
+                <form id="authForm" class="auth-form">
+                    ${!isLogin ? `
+                        <input type="text" id="name" placeholder="Full Name" required>
+                    ` : ''}
+                    <input type="email" id="email" placeholder="Email" required>
+                    ${!isLogin ? `
+                        <select id="class" required>
+                            <option value="">Select Class</option>
+                            <option value="ds101">DS101: Intro to Data Science</option>
+                            <option value="ds201">DS201: Machine Learning</option>
+                            <option value="ds301">DS301: Big Data Analytics</option>
+                        </select>
+                        <select id="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    ` : ''}
+                    <button type="submit">${isLogin ? 'Login' : 'Sign Up'}</button>
+                </form>
+                <p class="auth-toggle" onclick="app.toggleAuthMode()">
+                    ${isLogin ? 'New user? Sign up' : 'Already have an account? Login'}
+                </p>
+            </div>
+        `;
+        document.getElementById('mainContent').innerHTML = authHtml;
+        document.getElementById('authForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            isLogin ? app.login() : app.signUp();
+        });
+    }
+
+
+loadResources() {
+    const resources = {
+        'Mathematics Fundamentals': [
+            { title: 'Thomas\' Calculus (Free PDF)', url: 'https://www.academia.edu/44744124/Thomas_Calculus_14th_Edition_Joel_Hass_Christopher_Heil_Maurice_Weir' },
+            { title: 'Linear Algebra and Its Applications by Gilbert Strang (Free PDF)', url: 'http://math.mit.edu/~gs/linearalgebra/' },
+            { title: '3Blue1Brown Linear Algebra Videos', url: 'https://www.3blue1brown.com/topics/linear-algebra' },
+            { title: 'Khan Academy Calculus', url: 'https://www.khanacademy.org/math/calculus-1' },
+            { title: 'MIT OpenCourseWare Linear Algebra', url: 'https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/' },
+            { title: 'Brilliant.org Mathematics Courses', url: 'https://brilliant.org/courses/#math-foundational' }
+        ],
+        'Data Science Core': [
+            { title: 'Introduction to Statistical Learning (Free Book)', url: 'https://www.statlearning.com/' },
+            { title: 'Python Data Science Handbook (Free Online)', url: 'https://jakevdp.github.io/PythonDataScienceHandbook/' },
+            { title: 'Fast.ai Practical Deep Learning for Coders', url: 'https://course.fast.ai/' },
+            { title: 'DataCamp Free Python Courses', url: 'https://www.datacamp.com/courses/tech:python' },
+            { title: 'Kaggle Learn', url: 'https://www.kaggle.com/learn' },
+            { title: 'Google Machine Learning Crash Course', url: 'https://developers.google.com/machine-learning/crash-course' }
+        ],
+        'Python Programming': [
+            { title: 'Automate the Boring Stuff with Python (Free Book)', url: 'https://automatetheboringstuff.com/' },
+            { title: 'Real Python Tutorials', url: 'https://realpython.com/' },
+            { title: 'Code with Harry Python Playlist', url: 'https://www.youtube.com/playlist?list=PLu0W_9lII9agICnT8t4iYVSZ3eykIAOME' },
+            { title: 'Codecademy Learn Python 3 (Free Course)', url: 'https://www.codecademy.com/learn/learn-python-3' },
+            { title: 'Python Projects for Beginners', url: 'https://realpython.com/tutorials/projects/' },
+            { title: 'Corey Schafer Python Tutorials', url: 'https://www.youtube.com/user/schafer5/playlists' }
+        ],
+        'Tools and Libraries': [
+            { title: 'NumPy User Guide', url: 'https://numpy.org/doc/stable/user/' },
+            { title: 'Pandas User Guide', url: 'https://pandas.pydata.org/docs/user_guide/index.html' },
+            { title: 'Matplotlib Tutorials', url: 'https://matplotlib.org/stable/tutorials/index.html' },
+            { title: 'Scikit-learn Tutorials', url: 'https://scikit-learn.org/stable/tutorial/index.html' },
+            { title: 'TensorFlow Tutorials', url: 'https://www.tensorflow.org/tutorials' },
+            { title: 'Jupyter Notebook Tutorial', url: 'https://www.dataquest.io/blog/jupyter-notebook-tutorial/' }
+        ]
+    };
+
+    const container = document.getElementById('resourceContainer');
+    for (const [category, items] of Object.entries(resources)) {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'resource-category';
+        categoryDiv.innerHTML = `<h3>${category}</h3>`;
+        const resourceList = document.createElement('div');
+        resourceList.className = 'resource-list';
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <h4>${item.title}</h4>
+                <a href="${item.url}" target="_blank">Visit Resource</a>
+            `;
+            resourceList.appendChild(card);
+        });
+        categoryDiv.appendChild(resourceList);
+        container.appendChild(categoryDiv);
+    }
+}
+
+loadProjects() {
+    const projects = [
+        {
+            semester: 1,
+            projects: [
+                {
+                    title: "Data Visualization: Create interactive charts using matplotlib or plotly",
+                    description: "Create a dashboard with various types of charts to visualize a dataset of your choice.",
+                    solution: "https://github.com/plotly/dash-sample-apps/tree/main/apps/dash-oil-and-gas"
+                },
+                {
+                    title: "Basic Data Analysis: Analyze a dataset using pandas and numpy",
+                    description: "Perform exploratory data analysis on a dataset, including data cleaning, summary statistics, and basic visualizations.",
+                    solution: "https://www.kaggle.com/code/pmarcelino/comprehensive-data-exploration-with-python"
+                },
+                {
+                    title: "Web Scraping: Extract data from a website using BeautifulSoup",
+                    description: "Scrape data from a website of your choice and store it in a structured format (e.g., CSV or JSON).",
+                    solution: "https://realpython.com/beautiful-soup-web-scraper-python/"
+                }
+            ]
+        },
+        {
+            semester: 2,
+            projects: [
+                {
+                    title: "Machine Learning: Implement a simple classification algorithm",
+                    description: "Build a classification model (e.g., logistic regression or decision tree) to predict a binary outcome.",
+                    solution: "https://scikit-learn.org/stable/auto_examples/classification/plot_digits_classification.html"
+                },
+                {
+                    title: "Database Management: Create and query a SQL database",
+                    description: "Design a database schema, create tables, insert data, and write complex SQL queries to extract insights.",
+                    solution: "https://www.sqlitetutorial.net/sqlite-python/"
+                },
+                {
+                    title: "Statistical Analysis: Conduct hypothesis testing on a real-world dataset",
+                    description: "Formulate and test hypotheses using statistical methods such as t-tests or ANOVA.",
+                    solution: "https://machinelearningmastery.com/statistical-hypothesis-tests-in-python-cheat-sheet/"
+                }
+            ]
+        },
+        {
+            semester: 3,
+            projects: [
+                {
+                    title: "Deep Learning: Build a neural network for image classification",
+                    description: "Implement a convolutional neural network (CNN) to classify images from a dataset like CIFAR-10 or MNIST.",
+                    solution: "https://www.tensorflow.org/tutorials/images/cnn"
+                },
+                {
+                    title: "Big Data: Process and analyze large datasets using PySpark",
+                    description: "Use PySpark to perform data processing and analysis tasks on a large dataset (e.g., from the Common Crawl corpus).",
+                    solution: "https://spark.apache.org/docs/latest/ml-classification-regression.html#random-forest-classifier"
+                },
+                {
+                    title: "Natural Language Processing: Develop a sentiment analysis model",
+                    description: "Build a model to classify the sentiment of text data (e.g., movie reviews or tweets).",
+                    solution: "https://www.kaggle.com/code/stoicstatic/twitter-sentiment-analysis-for-beginners"
+                }
+            ]
+        },
+        {
+            semester: 4,
+            projects: [
+                {
+                    title: "Time Series Analysis: Forecast future values using ARIMA or Prophet",
+                    description: "Implement a time series forecasting model to predict future values of a time-dependent variable.",
+                    solution: "https://facebook.github.io/prophet/docs/quick_start.html"
+                },
+                {
+                    title: "Recommender System: Build a collaborative filtering model",
+                    description: "Create a movie recommendation system using collaborative filtering techniques.",
+                    solution: "https://developers.google.com/machine-learning/recommendation/collaborative/basics"
+                },
+                {
+                    title: "Computer Vision: Implement object detection using OpenCV",
+                    description: "Develop an object detection system using pre-trained models like YOLO or SSD with OpenCV.",
+                    solution: "https://learnopencv.com/deep-learning-based-object-detection-using-yolov3-with-opencv-python-c/"
+                }
+            ]
+        }
+    ];
+
+    const container = document.getElementById('projectContainer');
+    projects.forEach(semesterProjects => {
+        const semesterDiv = document.createElement('div');
+        semesterDiv.className = 'semester-projects';
+        semesterDiv.innerHTML = `<h3>Semester ${semesterProjects.semester}</h3>`;
+        const projectList = document.createElement('div');
+        semesterProjects.projects.forEach(project => {
+            const projectCard = document.createElement('div');
+            projectCard.className = 'card';
+            projectCard.innerHTML = `
+                <h4>${project.title}</h4>
+                <p>${project.description}</p>
+                <a href="${project.solution}" target="_blank">View Solution</a>
+            `;
+            projectList.appendChild(projectCard);
+        });
+        semesterDiv.appendChild(projectList);
+        container.appendChild(semesterDiv);
+    });
+}
+
+searchResources() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const resourceCards = document.querySelectorAll('.resource-category .card');
+    resourceCards.forEach(card => {
+        const title = card.querySelector('h4').textContent.toLowerCase();
+        if (title.includes(query)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+}
+
+class Chatbot {
+constructor() {
+    this.messages = [];
+    this.initChatbot();
+}
+
+initChatbot() {
+    const sendButton = document.getElementById('sendChatbotMessage');
+    const input = document.getElementById('chatbotInput');
+    const closeButton = document.getElementById('closeChatbot');
+
+    if (sendButton && input && closeButton) {
+        sendButton.addEventListener('click', () => this.sendMessage());
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.sendMessage();
+            }
+        });
+        closeButton.addEventListener('click', () => this.toggleChatbot());
+    }
+
+    this.addMessage('ai', "Hello! I'm your AI assistant for the Advanced Data Science Classroom. How can I help you today?");
+}
+
+sendMessage() {
+    const input = document.getElementById('chatbotInput');
+    const message = input.value.trim();
+    if (message) {
+        this.addMessage('user', message);
+        this.processMessage(message);
+        input.value = '';
+    }
+}
+
+addMessage(sender, text) {
+    this.messages.push({ sender, text });
+    this.updateChatDisplay();
+}
+
+updateChatDisplay() {
+    const chatMessages = document.getElementById('chatbotMessages');
+    chatMessages.innerHTML = this.messages.map(msg => `
+        <div class="${msg.sender}-message">
+            <strong>${msg.sender === 'user' ? 'You' : 'AI'}:</strong> ${msg.text}
+        </div>
+    `).join('');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+processMessage(message) {
+    const lowerMessage = message.toLowerCase();
+    let response;
+
+    if (lowerMessage.includes('project') || lowerMessage.includes('idea')) {
+        response = "Here are some project ideas: 1) Develop a sentiment analysis model for social media data. 2) Create a recommendation system for movies or books. 3) Build a image classification model using deep learning.";
+    } else if (lowerMessage.includes('resource') || lowerMessage.includes('learn')) {
+        response = "I recommend checking out Coursera, edX, or Udacity for online courses in data science. For free resources, try Khan Academy or MIT OpenCourseWare.";
+    } else if (lowerMessage.includes('tool') || lowerMessage.includes('library')) {
+        response = "Some popular data science tools and libraries include: Python, R, pandas, scikit-learn, TensorFlow, and PyTorch. Which one are you interested in?";
+    } else {
+        response = "I'm not sure how to respond to that. Can you try rephrasing your question or ask about projects, resources, or tools?";
+    }
+
+    setTimeout(() => this.addMessage('ai', response), 500);
+}
+
+toggleChatbot() {
+    const chatbotContainer = document.querySelector('.chatbot-container');
+    chatbotContainer.style.display = chatbotContainer.style.display === 'none' ? 'flex' : 'none';
+}
+}
+
+class App {
+constructor() {
+    this.router = new Router();
+    this.chatbot = new Chatbot();
+    this.isLoggedIn = false;
+    this.username = '';
+    this.emailOrPhone = '';
+    this.currentPasscode = '';
+    this.init();
+    this.isloginmode = true;
+}
+
+init() {
+    this.router.init();
+    this.setupEventListeners();
+    this.checkLoginStatus();
+}
+
+setupEventListeners() {
+    document.querySelectorAll('nav a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.hash = e.target.dataset.route;
+        });
+    });
+
+    document.getElementById('darkModeToggle').addEventListener('click', () => this.toggleDarkMode());
+
+    document.querySelector('.close').addEventListener('click', () => this.closeModal());
+}
+
+checkLoginStatus() {
+    const storedUsername = localStorage.getItem('username');
+    const storedEmailOrPhone = localStorage.getItem('emailOrPhone');
+    if (storedUsername && storedEmailOrPhone) {
+        this.isLoggedIn = true;
+        this.username = storedUsername;
+        this.emailOrPhone = storedEmailOrPhone;
+    }
+}
+
+requestPasscode() {
+    this.emailOrPhone = document.getElementById('emailOrPhone').value;
+    this.currentPasscode = Math.floor(100000 + Math.random() * 900000).toString();
+    alert(`Your passcode is: ${this.currentPasscode}`);
+    this.router.showPasscodeForm();
+}
+
+verifyPasscode() {
+    const enteredPasscode = document.getElementById('passcode').value;
+    if (enteredPasscode === this.currentPasscode) {
+        this.isLoggedIn = true;
+        this.username = this.emailOrPhone.split('@')[0];
+        localStorage.setItem('username', this.username);
+        localStorage.setItem('emailOrPhone', this.emailOrPhone);
+        this.router.showProfile();
+    } else {
+        alert('Incorrect passcode. Please try again.');
+    }
+}
+
+logout() {
+    this.isLoggedIn = false;
+    this.username = '';
+    this.emailOrPhone = '';
+    localStorage.removeItem('username');
+    localStorage.removeItem('emailOrPhone');
+    this.router.showLoginForm();
+}
+
+toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+}
+
+closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+toggleAuthMode() {
+        this.isLoginMode = !this.isLoginMode;
+        this.router.showAuth(this.isLoginMode);
+    }
+
+    signUp() {
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const selectedClass = document.getElementById('class').value;
+        const gender = document.getElementById('gender').value;
+
+        localStorage.setItem('username', name);
+        localStorage.setItem('emailOrPhone', email);
+        localStorage.setItem('class', selectedClass);
+        localStorage.setItem('gender', gender);
+
+        this.isLoggedIn = true;
+        this.username = name;
+        this.emailOrPhone = email;
+        this.router.showProfile();
+    }
+
+    login() {
+        const email = document.getElementById('email').value;
+        const storedEmail = localStorage.getItem('emailOrPhone');
+
+        if (email === storedEmail) {
+            this.isLoggedIn = true;
+            this.username = localStorage.getItem('username');
+            this.emailOrPhone = email;
+            this.router.showProfile();
+        } else {
+            alert('Email not found. Please sign up.');
+            this.toggleAuthMode();
+        }
+    }
+
+    logout() {
+        this.isLoggedIn = false;
+        this.username = '';
+        this.emailOrPhone = '';
+        localStorage.removeItem('username');
+        localStorage.removeItem('emailOrPhone');
+        localStorage.removeItem('class');
+        localStorage.removeItem('gender');
+        this.router.showAuth(true);
+    }
+}
+
+const app = new App();
+</script>
+</body>
+</html>
+
